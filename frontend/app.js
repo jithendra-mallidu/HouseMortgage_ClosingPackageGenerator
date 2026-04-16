@@ -10,6 +10,7 @@ const API_BASE_URL = window.CLOSING_API_URL || '';
 
 // ── State ──────────────────────────────────────────────────────────────────
 let dotStates = new Set();
+let availableAdditionalDocs = [];
 
 // ── DOM Elements ───────────────────────────────────────────────────────────
 const stateSelect = document.getElementById('state');
@@ -61,6 +62,75 @@ modeBtns.forEach(btn => {
   });
 });
 
+// ── Additional Documents Section ──────────────────────────────────────────
+const additionalDocsSection = document.getElementById('additionalDocsSection');
+const additionalDocsList = document.getElementById('additionalDocsList');
+const additionalDocsLoading = document.getElementById('additionalDocsLoading');
+
+async function loadAdditionalDocs(state) {
+  if (!state) {
+    additionalDocsSection.style.display = 'none';
+    return;
+  }
+  additionalDocsSection.style.display = '';
+  additionalDocsLoading.style.display = '';
+  additionalDocsList.innerHTML = '';
+
+  try {
+    const resp = await fetch(`${API_BASE_URL}/api/additional-documents?state=${encodeURIComponent(state)}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    availableAdditionalDocs = data.documents || [];
+    renderAdditionalDocs(availableAdditionalDocs);
+  } catch (err) {
+    console.error('Failed to load additional documents:', err);
+    additionalDocsList.innerHTML = '<div class="no-docs-message">Failed to load additional documents.</div>';
+  } finally {
+    additionalDocsLoading.style.display = 'none';
+  }
+}
+
+function renderAdditionalDocs(docs) {
+  additionalDocsList.innerHTML = '';
+  if (!docs.length) {
+    additionalDocsList.innerHTML = '<div class="no-docs-message">No additional documents available for this state.</div>';
+    return;
+  }
+
+  // Group by category
+  const grouped = {};
+  docs.forEach(doc => {
+    if (!grouped[doc.category]) grouped[doc.category] = [];
+    grouped[doc.category].push(doc);
+  });
+
+  for (const [category, catDocs] of Object.entries(grouped)) {
+    const title = document.createElement('div');
+    title.className = 'doc-category-title';
+    title.textContent = category;
+    additionalDocsList.appendChild(title);
+
+    const list = document.createElement('div');
+    list.className = 'doc-checkbox-list';
+    catDocs.forEach(doc => {
+      const item = document.createElement('div');
+      item.className = 'doc-checkbox-item';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.id = `doc_${doc.id}`;
+      cb.value = doc.id;
+      cb.name = 'additional_doc';
+      const lbl = document.createElement('label');
+      lbl.htmlFor = `doc_${doc.id}`;
+      lbl.textContent = doc.name;
+      item.appendChild(cb);
+      item.appendChild(lbl);
+      list.appendChild(item);
+    });
+    additionalDocsList.appendChild(list);
+  }
+}
+
 // ── Trustee Section Visibility ─────────────────────────────────────────────
 stateSelect.addEventListener('change', () => {
   if (dotStates.has(stateSelect.value)) {
@@ -68,6 +138,8 @@ stateSelect.addEventListener('change', () => {
   } else {
     trusteeSection.classList.add('hidden');
   }
+  // Load additional documents for this state
+  loadAdditionalDocs(stateSelect.value);
 });
 
 // ── Auto-fill Sample Data ──────────────────────────────────────────────────
@@ -145,7 +217,17 @@ form.addEventListener('submit', async (e) => {
     // Build form data to send to API
     const formData = new FormData(form);
     const body = {};
-    formData.forEach((value, key) => { body[key] = value; });
+    formData.forEach((value, key) => {
+      if (key === 'additional_doc') return; // handled below
+      body[key] = value;
+    });
+
+    // Collect selected additional documents
+    const selectedDocs = [];
+    document.querySelectorAll('input[name="additional_doc"]:checked').forEach(cb => {
+      selectedDocs.push(cb.value);
+    });
+    body.additional_documents = selectedDocs;
 
     const resp = await fetch(`${API_BASE_URL}/api/generate`, {
       method: 'POST',

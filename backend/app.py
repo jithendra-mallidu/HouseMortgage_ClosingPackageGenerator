@@ -41,6 +41,8 @@ BASE = Path(__file__).parent
 TEMPLATE_DIR = BASE / "templates"
 SI_DIR = TEMPLATE_DIR / "security_instruments"
 NOTE_DIR = TEMPLATE_DIR / "notes"
+RIDER_DIR = TEMPLATE_DIR / "riders"
+SP_DIR = TEMPLATE_DIR / "special_purpose"
 NOTICE_PDF = TEMPLATE_DIR / "Notice_Of_Right_To_Cancel.pdf"
 CA_ACK_PDF = TEMPLATE_DIR / "Notary_Acknowledgment_California.pdf"
 CACHE = BASE / "cache"
@@ -149,6 +151,317 @@ DEED_OF_TRUST_STATES = {
     "Nevada", "North Carolina", "Oregon", "Tennessee", "Texas", "Utah",
     "Virginia", "Washington", "West Virginia",
 }
+
+# -----------------------------------------------------------------------------
+# Additional Documents Registry
+# Each entry: id -> {name, category, filename, dir, states}
+#   states: list of states this doc applies to, or None for all states
+# -----------------------------------------------------------------------------
+ADDITIONAL_DOCUMENTS = {
+    # ── Riders ──
+    "condo_rider": {
+        "name": "Condominium Rider",
+        "category": "Riders",
+        "filename": "Form 3140 - Multistate Condominium Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": None,  # all states
+    },
+    "condo_rider_tx": {
+        "name": "Texas Home Equity Condominium Rider",
+        "category": "Riders",
+        "filename": "Form 3140.44 - Texas Home Equity Condo Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": ["Texas"],
+    },
+    "condo_rider_pr": {
+        "name": "Puerto Rico Condominium Rider",
+        "category": "Riders",
+        "filename": "Form 3140.53 - Puerto Rico Condominium Rider  07_2021.pdf",
+        "dir": "riders",
+        "states": ["Puerto Rico"],
+    },
+    "sofr_arm_rider": {
+        "name": "SOFR ARM Rider",
+        "category": "Riders",
+        "filename": "Form 3141 - Multistate SOFR ARM Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": None,
+    },
+    "sofr_arm_rider_wv": {
+        "name": "West Virginia SOFR ARM Rider",
+        "category": "Riders",
+        "filename": "Form 3141.49 - West Virginia SOFR ARM Rider 05_2024.pdf",
+        "dir": "riders",
+        "states": ["West Virginia"],
+    },
+    "sofr_arm_rider_pr": {
+        "name": "Puerto Rico SOFR ARM Rider",
+        "category": "Riders",
+        "filename": "Form 3141.53 - Puerto Rico SOFR ARM Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": ["Puerto Rico"],
+    },
+    "fixed_adj_sofr_rider": {
+        "name": "Fixed/Adjustable Rate Rider (30-Day Avg SOFR)",
+        "category": "Riders",
+        "filename": "Form 3142 - Multistate Fixed_Adjustable Rate Rider - 30 Day Average SOFR 07.2021.pdf",
+        "dir": "riders",
+        "states": None,
+    },
+    "fixed_adj_sofr_rider_tx": {
+        "name": "Texas Home Equity Fixed/Adjustable SOFR Rider",
+        "category": "Riders",
+        "filename": "Form 3142.44 - Texas Home Equity Fixed Adjustable SOFR Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": ["Texas"],
+    },
+    "fixed_adj_sofr_rider_wv": {
+        "name": "West Virginia Fixed/Adjustable Rate Rider (SOFR)",
+        "category": "Riders",
+        "filename": "Form 3142.49 - West Virginia Fixed_Adjustable Rate Rider - 30 Day Average SOFR 05_2024.pdf",
+        "dir": "riders",
+        "states": ["West Virginia"],
+    },
+    "fixed_adj_sofr_rider_pr": {
+        "name": "Puerto Rico Fixed/Adjustable ARM Rider (SOFR)",
+        "category": "Riders",
+        "filename": "Form 3142.53 - Puerto Rico SOFR F_A ARM Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": ["Puerto Rico"],
+    },
+    "pud_rider": {
+        "name": "PUD Rider",
+        "category": "Riders",
+        "filename": "Form 3150 - Multistate PUD Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": None,
+    },
+    "pud_rider_tx": {
+        "name": "Texas Home Equity PUD Rider",
+        "category": "Riders",
+        "filename": "Form 3150.44 - Texas Home Equity PUD Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": ["Texas"],
+    },
+    "pud_rider_pr": {
+        "name": "Puerto Rico PUD Rider",
+        "category": "Riders",
+        "filename": "Form 3150.53 - Puerto Rico PUD Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": ["Puerto Rico"],
+    },
+    "mers_rider": {
+        "name": "MERS Rider",
+        "category": "Riders",
+        "filename": "Form 3158 - MERs Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": None,
+    },
+    "family_rider": {
+        "name": "1-4 Family Rider",
+        "category": "Riders",
+        "filename": "Form 3170 - 1-4 Family Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": None,
+    },
+    "family_rider_pr": {
+        "name": "Puerto Rico 1-4 Family Rider",
+        "category": "Riders",
+        "filename": "Form 3170.53 - Puerto Rico 1-4 Family Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": ["Puerto Rico"],
+    },
+    "second_home_rider": {
+        "name": "Second Home Rider",
+        "category": "Riders",
+        "filename": "Form 3890 - Multistate Second Home Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": None,
+    },
+    "second_home_rider_pr": {
+        "name": "Puerto Rico Second Home Rider",
+        "category": "Riders",
+        "filename": "Form 3890.53 - Puerto Rico Second Home Rider 07_2021.pdf",
+        "dir": "riders",
+        "states": ["Puerto Rico"],
+    },
+    "reno_loan_rider": {
+        "name": "Renovation Loan Rider to Security Instrument",
+        "category": "Riders",
+        "filename": "Form 3732 - Multistate Reno Loan Rider to SI FNMA Model Doc 07.2021.pdf",
+        "dir": "riders",
+        "states": None,
+    },
+    "investor_reno_rider": {
+        "name": "Investor Renovation Loan Rider to Security Instrument",
+        "category": "Riders",
+        "filename": "Form 3733 - Multistate Investor Reno Loan Rider to SI FNMA Model Doc 07.2021.pdf",
+        "dir": "riders",
+        "states": None,
+    },
+    "construction_addendum_note": {
+        "name": "Construction Loan Addendum to Note",
+        "category": "Riders",
+        "filename": "Form 3736 - Multistate Construction Loan Addendum to Note FNMA Model Doc 07.2021.pdf",
+        "dir": "riders",
+        "states": None,
+    },
+    "construction_rider": {
+        "name": "Construction Loan Rider",
+        "category": "Riders",
+        "filename": "Form 3737 - Multistate Construction Loan Rider FNMA Model Doc 07_2021.pdf",
+        "dir": "riders",
+        "states": None,
+    },
+    "investor_construction_rider": {
+        "name": "Investor Construction Loan Rider to Security Instrument",
+        "category": "Riders",
+        "filename": "Form 3738 - Multistate Investor Construction Loan Rider to SI FNMA Model Doc 07_2021.pdf",
+        "dir": "riders",
+        "states": None,
+    },
+    "pr_acceptance_mortgage": {
+        "name": "Puerto Rico Acceptance of Mortgage",
+        "category": "Riders",
+        "filename": "Form 3053.1 - Puerto Rico Acceptance of Mortgage 07_2021.pdf",
+        "dir": "riders",
+        "states": ["Puerto Rico"],
+    },
+    # ── Special Purpose Documents ──
+    "ny_cema": {
+        "name": "New York CEMA",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3172 - New York CEMA 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": ["New York"],
+    },
+    "tx_home_equity_affidavit": {
+        "name": "Texas Home Equity Affidavit Agreement",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3185 - Texas_Home Equity Affidavit Agreement 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": ["Texas"],
+    },
+    "renovation_contract": {
+        "name": "Renovation Contract",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3730 - Multistate Renovation Contract - Fannie Mae Model Document 07_2021 (rev. 11_23).pdf",
+        "dir": "special_purpose",
+        "states": None,
+    },
+    "renovation_loan_agreement": {
+        "name": "Renovation Loan Agreement",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3731 - Multistate Renovation Loan Agreement - Fannie Mae Model Document 07_2021 (rev. 02_22).pdf",
+        "dir": "special_purpose",
+        "states": None,
+    },
+    "construction_contract": {
+        "name": "Construction Contract",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3734 - Multistate Construction Contract - FNMA Model Document 07 2021.pdf",
+        "dir": "special_purpose",
+        "states": None,
+    },
+    "construction_loan_agreement": {
+        "name": "Construction Loan Agreement",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3735 - Multistate Construction Loan Agreement - FNMA Model Doc 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": None,
+    },
+    "lien_waiver": {
+        "name": "Lien Waiver",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3739 - Multistate Lien Waiver 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": None,
+    },
+    "mortgage_assignment_3741": {
+        "name": "Mortgage Assignment (Form 3741)",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3741 - Multistate Mortgage Assignment 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": None,
+    },
+    "mortgage_assignment_3742": {
+        "name": "Mortgage Assignment (Form 3742)",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3742 - Multistate Mortgage Assignment 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": None,
+    },
+    "dot_assignment_3743": {
+        "name": "Deed of Trust Assignment (Form 3743)",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3743 - Multistate Deed of Trust Assignment 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": None,
+    },
+    "dot_assignment_3744": {
+        "name": "Deed of Trust Assignment (Form 3744)",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3744 - Multistate Deed of Trust Assignment 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": None,
+    },
+    "ga_security_deed_assignment": {
+        "name": "Georgia Security Deed Assignment",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3745 - Georgia Security Deed Assignment 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": ["Georgia"],
+    },
+    "la_notarial_endorsement": {
+        "name": "Louisiana Notarial Endorsement Note Mortgage Assignment",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3746 - Louisiana Notarial Endorsement Note Mortgage Assignment 07.2021.pdf",
+        "dir": "special_purpose",
+        "states": ["Louisiana"],
+    },
+    "subordination_refi": {
+        "name": "Subordination Agreement (Refi Mortgage)",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3747 - Subordination Agreement (Refi Mortgage) 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": None,
+    },
+    "subordination_modified": {
+        "name": "Subordination Agreement (Modified Mortgage)",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3748 - Subordination Agreement (Modified Mortgage) 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": None,
+    },
+    "mers_mortgage_assignment_me": {
+        "name": "MERS Mortgage Assignment (Maine)",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3749 - MERS Mortgage Assignment (Maine)  07_2021.pdf",
+        "dir": "special_purpose",
+        "states": ["Maine"],
+    },
+    "ms_ground_lease_renewals": {
+        "name": "Mississippi Ground Lease Renewals",
+        "category": "Special Purpose Documents",
+        "filename": "Form 3759.25 - Mississippi Ground Lease Renewals FNMA Only 07_2021.pdf",
+        "dir": "special_purpose",
+        "states": ["Mississippi"],
+    },
+}
+
+
+def get_additional_docs_for_state(state: str) -> list[dict]:
+    """Return additional documents available for a given state."""
+    result = []
+    for doc_id, doc in ADDITIONAL_DOCUMENTS.items():
+        if doc["states"] is None or state in doc["states"]:
+            result.append({
+                "id": doc_id,
+                "name": doc["name"],
+                "category": doc["category"],
+            })
+    return result
+
 
 # -----------------------------------------------------------------------------
 # Sample data generator
@@ -836,10 +1149,12 @@ def docx_to_pdf(docx_path: Path, cache_name: str | None = None) -> Path:
 # Bundle builder
 # =============================================================================
 
-def build_bundle(state: str, data: dict | None, mode: str) -> tuple[bytes, str]:
+def build_bundle(state: str, data: dict | None, mode: str,
+                  additional_doc_ids: list[str] | None = None) -> tuple[bytes, str]:
     """Build the closing package PDF.
 
     mode: 'empty' = blank templates, 'filled' = fill with data
+    additional_doc_ids: list of document IDs from ADDITIONAL_DOCUMENTS to append
     """
     if state not in SECURITY_INSTRUMENTS:
         abort(400, f"Unknown state: {state}")
@@ -891,6 +1206,20 @@ def build_bundle(state: str, data: dict | None, mode: str) -> tuple[bytes, str]:
         for page in notice_reader.pages:
             merger.add_page(page)
 
+        # Append additional documents (riders, special purpose docs)
+        if additional_doc_ids:
+            for doc_id in additional_doc_ids:
+                doc_info = ADDITIONAL_DOCUMENTS.get(doc_id)
+                if not doc_info:
+                    continue
+                doc_dir = RIDER_DIR if doc_info["dir"] == "riders" else SP_DIR
+                doc_path = doc_dir / doc_info["filename"]
+                if doc_path.exists():
+                    print(f"  [add] {doc_info['name']}...")
+                    doc_reader = PdfReader(str(doc_path))
+                    for page in doc_reader.pages:
+                        merger.add_page(page)
+
     else:
         # Empty: just merge blank templates
         # Convert SI docx to PDF
@@ -919,6 +1248,20 @@ def build_bundle(state: str, data: dict | None, mode: str) -> tuple[bytes, str]:
             notice_reader = PdfReader(str(NOTICE_PDF))
             for page in notice_reader.pages:
                 merger.add_page(page)
+
+        # Append additional documents (riders, special purpose docs)
+        if additional_doc_ids:
+            for doc_id in additional_doc_ids:
+                doc_info = ADDITIONAL_DOCUMENTS.get(doc_id)
+                if not doc_info:
+                    continue
+                doc_dir = RIDER_DIR if doc_info["dir"] == "riders" else SP_DIR
+                doc_path = doc_dir / doc_info["filename"]
+                if doc_path.exists():
+                    print(f"  [add] {doc_info['name']}...")
+                    doc_reader = PdfReader(str(doc_path))
+                    for page in doc_reader.pages:
+                        merger.add_page(page)
 
     out = io.BytesIO()
     merger.write(out)
@@ -969,6 +1312,16 @@ def states():
     })
 
 
+@app.route("/api/additional-documents")
+def additional_documents():
+    """Return available additional documents for a given state."""
+    state = request.args.get("state", "")
+    if not state or state not in SECURITY_INSTRUMENTS:
+        return jsonify({"error": "Valid state is required"}), 400
+    docs = get_additional_docs_for_state(state)
+    return jsonify({"documents": docs})
+
+
 @app.route("/api/sample-data")
 def sample_data():
     """API endpoint to generate sample data for a given state."""
@@ -994,6 +1347,12 @@ def generate():
 
     state = form_data.get("state", "").strip()
     mode = form_data.get("mode", "empty")
+
+    # Parse additional document selections
+    additional_doc_ids = form_data.get("additional_documents", [])
+    if isinstance(additional_doc_ids, str):
+        # If sent as comma-separated string
+        additional_doc_ids = [d.strip() for d in additional_doc_ids.split(",") if d.strip()]
 
     if not state:
         return jsonify({"error": "State is required"}), 400
@@ -1102,9 +1461,9 @@ def generate():
         if not data["recording_jurisdiction_name"]:
             data["recording_jurisdiction_name"] = data["property_county"]
 
-        pdf_bytes, filename = build_bundle(state, data, "filled")
+        pdf_bytes, filename = build_bundle(state, data, "filled", additional_doc_ids)
     else:
-        pdf_bytes, filename = build_bundle(state, None, "empty")
+        pdf_bytes, filename = build_bundle(state, None, "empty", additional_doc_ids)
 
     return send_file(io.BytesIO(pdf_bytes),
                      mimetype="application/pdf",
