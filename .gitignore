@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+
+# Cache
+backend/cache/
+ClosingPackageApp/cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Vercel
+frontend/.vercel/
+
+# Node
+node_modules/
+
+# Claude / Gemini
+.claude/
+.gemini/

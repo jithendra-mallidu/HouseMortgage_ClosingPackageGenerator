@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Closing Package Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Generate closing package PDFs with filled loan data for Fannie Mae Security Instruments, Notes, and Notice of Right to Cancel." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📋 Closing Package Generator</h1>
+      <p>Fill in loan details to generate a closing package with the Security Instrument,<br>
+         Promissory Note, and Notice of Right to Cancel.</p>
+    </div>
+
+    <form id="form">
+
+      <!-- State Selection -->
+      <div class="card">
+        <div class="section-title">
+          <span class="icon">1</span> State &amp; Package Type
+        </div>
+
+        <label class="field-label" for="state">State / Jurisdiction</label>
+        <select id="state" name="state" required>
+          <option value="" disabled selected>Select a state…</option>
+          <!-- States loaded dynamically from API -->
+        </select>
+
+        <label class="field-label">Package Type</label>
+        <div class="mode-toggle">
+          <button type="button" class="mode-btn" data-mode="empty">Empty Package</button>
+          <button type="button" class="mode-btn active" data-mode="filled">Fill with Loan Data</button>
+        </div>
+        <input type="hidden" name="mode" id="modeInput" value="filled" />
+      </div>
+
+      <!-- Fill Data Section -->
+      <div id="fillSection">
+
+        <!-- Borrower -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <div class="section-title" style="margin: 0; border: 0; padding: 0;">
+              <span class="icon">2</span> Borrower Details
+            </div>
+            <button type="button" class="autofill-btn" id="autofillBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              Auto-fill Sample Data
+            </button>
+          </div>
+
+          <div class="field-row two">
+            <div>
+              <label class="field-label" for="borrower_name">Borrower Name</label>
+              <input type="text" id="borrower_name" name="borrower_name" placeholder="e.g. John Smith" />
+            </div>
+            <div>
+              <label class="field-label" for="co_borrower_name">Co-Borrower Name (optional)</label>
+              <input type="text" id="co_borrower_name" name="co_borrower_name" placeholder="e.g. Mary Smith" />
+            </div>
+          </div>
+
+          <label class="field-label" for="borrower_address">Borrower Current Address</label>
+          <input type="text" id="borrower_address" name="borrower_address" placeholder="e.g. 456 Sunset Blvd, Apt 12, Beverly Hills, CA 90210" />
+        </div>
+
+        <!-- Loan Details -->
+        <div class="card">
+          <div class="section-title">
+            <span class="icon">3</span> Loan Details
+          </div>
+
+          <div class="field-row two">
+            <div>
+              <label class="field-label" for="loan_date">Loan Date</label>
+              <input type="date" id="loan_date" name="loan_date" />
+            </div>
+            <div>
+              <label class="field-label" for="interest_rate">Interest Rate (%)</label>
+              <input type="text" id="interest_rate" name="interest_rate" placeholder="e.g. 6.5" />
+            </div>
+          </div>
+
+          <div class="field-row two">
+            <div>
+              <label class="field-label" for="loan_amount_number">Loan Amount ($)</label>
+              <input type="text" id="loan_amount_number" name="loan_amount_number" placeholder="e.g. 320,000.00" />
+            </div>
+            <div>
+              <label class="field-label" for="loan_amount_words">Loan Amount (Words)</label>
+              <input type="text" id="loan_amount_words" name="loan_amount_words" placeholder="e.g. Three Hundred Twenty Thousand" />
+            </div>
+          </div>
+
+          <div class="field-row three">
+            <div>
+              <label class="field-label" for="monthly_payment">Monthly P&amp;I ($)</label>
+              <input type="text" id="monthly_payment" name="monthly_payment" placeholder="e.g. 2,023.65" />
+            </div>
+            <div>
+              <label class="field-label" for="first_payment_date">First Payment Date</label>
+              <input type="date" id="first_payment_date" name="first_payment_date" />
+            </div>
+            <div>
+              <label class="field-label" for="maturity_date">Maturity Date</label>
+              <input type="date" id="maturity_date" name="maturity_date" />
+            </div>
+          </div>
+
+          <div class="field-row two">
+            <div>
+              <label class="field-label" for="late_charge_days">Late Charge Days</label>
+              <input type="text" id="late_charge_days" name="late_charge_days" value="15" />
+            </div>
+            <div>
+              <label class="field-label" for="late_charge_percent">Late Charge %</label>
+              <input type="text" id="late_charge_percent" name="late_charge_percent" value="5" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Lender -->
+        <div class="card">
+          <div class="section-title">
+            <span class="icon">4</span> Lender Details
+          </div>
+
+          <label class="field-label" for="lender_name">Lender Name</label>
+          <input type="text" id="lender_name" name="lender_name" placeholder="e.g. Acme Home Lending, Inc." />
+
+          <div class="field-row two">
+            <div>
+              <label class="field-label" for="lender_org_type">Organization Type</label>
+              <input type="text" id="lender_org_type" name="lender_org_type" placeholder="e.g. corporation" />
+            </div>
+            <div>
+              <label class="field-label" for="lender_org_state">State of Organization</label>
+              <input type="text" id="lender_org_state" name="lender_org_state" placeholder="e.g. Delaware" />
+            </div>
+          </div>
+
+          <label class="field-label" for="lender_address">Lender Address</label>
+          <input type="text" id="lender_address" name="lender_address" placeholder="e.g. 100 Finance Plaza, Wilmington, DE 19801" />
+        </div>
+
+        <!-- Trustee (only for DOT states) -->
+        <div class="card" id="trusteeSection">
+          <div class="section-title">
+            <span class="icon">5</span> Trustee Details
+            <span style="font-size: 11px; font-weight: 500; color: var(--muted); margin-left: auto;">Deed of Trust states only</span>
+          </div>
+
+          <label class="field-label" for="trustee_name">Trustee Name</label>
+          <input type="text" id="trustee_name" name="trustee_name" placeholder="e.g. First American Title Insurance Co." />
+
+          <label class="field-label" for="trustee_address">Trustee Address</label>
+          <input type="text" id="trustee_address" name="trustee_address" placeholder="e.g. 200 Trust Center Drive, Los Angeles, CA 90017" />
+        </div>
+
+        <!-- Property -->
+        <div class="card">
+          <div class="section-title">
+            <span class="icon">6</span> Property Details
+          </div>
+
+          <label class="field-label" for="property_street">Street Address</label>
+          <input type="text" id="property_street" name="property_street" placeholder="e.g. 1234 Maple St" />
+
+          <div class="field-row three">
+            <div>
+              <label class="field-label" for="property_city">City</label>
+              <input type="text" id="property_city" name="property_city" placeholder="e.g. Los Angeles" />
+            </div>
+            <div>
+              <label class="field-label" for="property_zip">Zip Code</label>
+              <input type="text" id="property_zip" name="property_zip" placeholder="e.g. 90017" />
+            </div>
+            <div>
+              <label class="field-label" for="property_county">County</label>
+              <input type="text" id="property_county" name="property_county" placeholder="e.g. Los Angeles County" />
+            </div>
+          </div>
+
+          <div class="field-row two">
+            <div>
+              <label class="field-label" for="recording_jurisdiction_type">Jurisdiction Type</label>
+              <input type="text" id="recording_jurisdiction_type" name="recording_jurisdiction_type" value="County" />
+            </div>
+            <div>
+              <label class="field-label" for="recording_jurisdiction_name">Jurisdiction Name</label>
+              <input type="text" id="recording_jurisdiction_name" name="recording_jurisdiction_name" placeholder="Same as County" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Notice of Right to Cancel -->
+        <div class="card">
+          <div class="section-title">
+            <span class="icon">7</span> Notice of Right to Cancel
+          </div>
+
+          <label class="field-label" for="cancel_deadline">Cancellation Deadline</label>
+          <input type="date" id="cancel_deadline" name="cancel_deadline" />
+
+          <div class="info-callout">
+            ✍️ <strong>Signature lines</strong> (borrower and witness) and <strong>notary seal/wet signature areas</strong>
+            are intentionally left blank for in-person completion.
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="card">
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+          Generate Closing Package
+          <span class="spinner"></span>
+        </button>
+        <div class="hint">The PDF will download automatically when ready.</div>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-card">
+      <div class="spinner-lg"></div>
+      <p>Generating your closing package…<br><small>This may take 15–30 seconds.</small></p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- API URL configuration — set before app.js loads -->
+  <script>
+    // Change this after deploying the backend to Cloud Run.
+    // Example: window.CLOSING_API_URL = 'https://closing-package-api-xxxxxxxx-uc.a.run.app';
+    window.CLOSING_API_URL = '';
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
