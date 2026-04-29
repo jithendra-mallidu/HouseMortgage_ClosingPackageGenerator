@@ -1119,6 +1119,76 @@ def _docx_to_pdf_python(docx_path: Path, out_pdf: Path) -> Path:
     return out_pdf
 
 
+def add_initials_overlay(pdf_path: Path, out_path: Path) -> Path:
+    """Stamp an initials footer on every page of a PDF.
+
+    Adds a thin bar at the bottom of each page with:
+      Borrower Initials: ________   Co-Borrower Initials: ________
+    Uses reportlab to build a transparent overlay per page, then merges
+    it with PyPDF2 so original content is untouched.
+    """
+    from reportlab.pdfgen import canvas as rl_canvas
+    from reportlab.lib.pagesizes import LETTER
+    from reportlab.lib import colors as rl_colors
+
+    reader = PdfReader(str(pdf_path))
+    writer = PdfWriter()
+
+    for page in reader.pages:
+        # Determine page dimensions
+        media = page.mediabox
+        page_w = float(media.width)
+        page_h = float(media.height)
+
+        # Build the overlay in memory
+        buf = io.BytesIO()
+        c = rl_canvas.Canvas(buf, pagesize=(page_w, page_h))
+
+        # --- footer bar ---
+        bar_h = 24          # height of the initials bar in points
+        bar_y = 18          # distance from bottom of page
+        margin = 36         # left/right margin
+
+        # Light grey background strip
+        c.setFillColor(rl_colors.HexColor("#f0f2f7"))
+        c.setStrokeColor(rl_colors.HexColor("#c8ccd8"))
+        c.setLineWidth(0.5)
+        c.rect(margin, bar_y, page_w - 2 * margin, bar_h, fill=1, stroke=1)
+
+        # Text
+        c.setFillColor(rl_colors.HexColor("#1a1f36"))
+        c.setFont("Helvetica", 7.5)
+
+        label_y = bar_y + 8   # vertical centre of text inside bar
+
+        # Left side — Borrower
+        c.drawString(margin + 8, label_y, "Borrower Initials:")
+        line_x1 = margin + 90
+        c.setLineWidth(0.75)
+        c.setStrokeColor(rl_colors.HexColor("#1a1f36"))
+        c.line(line_x1, label_y, line_x1 + 72, label_y)
+
+        # Right side — Co-Borrower (centred in right half)
+        mid = page_w / 2
+        c.drawString(mid + 8, label_y, "Co-Borrower Initials:")
+        line_x2 = mid + 110
+        c.line(line_x2, label_y, line_x2 + 72, label_y)
+
+        c.save()
+        buf.seek(0)
+
+        # Merge overlay onto the page
+        overlay_reader = PdfReader(buf)
+        overlay_page = overlay_reader.pages[0]
+        page.merge_page(overlay_page)
+        writer.add_page(page)
+
+    with open(str(out_path), "wb") as f:
+        writer.write(f)
+
+    return out_path
+
+
 def docx_to_pdf(docx_path: Path, cache_name: str | None = None) -> Path:
     """Convert a DOCX to PDF. Uses LibreOffice if available, otherwise
     falls back to a pure-Python conversion."""
@@ -1168,7 +1238,10 @@ def build_bundle(state: str, data: dict | None, mode: str,
         # 1. Fill Security Instrument
         print(f"  [fill] Security Instrument for {state}...")
         filled_si_docx = fill_security_instrument(si_docx_path, data, state)
-        si_pdf = docx_to_pdf(filled_si_docx, cache_name=f"filled_SI_{STATE_ABBR.get(state, state)}")
+        si_pdf_raw = docx_to_pdf(filled_si_docx, cache_name=f"filled_SI_{STATE_ABBR.get(state, state)}")
+        si_pdf = CACHE / f"filled_SI_{STATE_ABBR.get(state, state)}_initialed.pdf"
+        print(f"  [initials] Adding initials footer to Security Instrument...")
+        add_initials_overlay(si_pdf_raw, si_pdf)
 
         # 2. Fill Note
         print(f"  [fill] Note for {state}...")
@@ -1223,9 +1296,13 @@ def build_bundle(state: str, data: dict | None, mode: str,
     else:
         # Empty: just merge blank templates
         # Convert SI docx to PDF
-        blank_si_pdf = CACHE / (si_docx_path.stem + ".pdf")
-        if not blank_si_pdf.exists():
-            blank_si_pdf = docx_to_pdf(si_docx_path)
+        blank_si_pdf_raw = CACHE / (si_docx_path.stem + ".pdf")
+        if not blank_si_pdf_raw.exists():
+            blank_si_pdf_raw = docx_to_pdf(si_docx_path)
+
+        blank_si_pdf = CACHE / (si_docx_path.stem + "_initialed.pdf")
+        print(f"  [initials] Adding initials footer to Security Instrument...")
+        add_initials_overlay(blank_si_pdf_raw, blank_si_pdf)
 
         note_pdf_path = NOTE_DIR / (note_stem + ".pdf")
         if not note_pdf_path.exists():
